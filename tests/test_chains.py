@@ -1,15 +1,11 @@
-from dotenv import load_dotenv
-
-load_dotenv()
-
 from langchain_core.documents import Document
 
-from graph.chains.answer_grader import GradeAnswer, answer_grader
-from graph.chains.generation import generation_chain
-from graph.chains.hallucination_grader import GradeHallucinations, hallucination_grader
-from graph.chains.retrievel_grader import GradeDocuments, retrieval_grader
-from graph.chains.router import RouteQuery, question_router
-from ingestion import retriever
+from app.graph.chains.answer_grader import GradeAnswer, answer_grader
+from app.graph.chains.generation import generation_chain
+from app.graph.chains.hallucination_grader import GradeHallucinations, hallucination_grader
+from app.graph.chains.retrieval_grader import GradeDocuments, retrieval_grader
+from app.graph.chains.router import RouteQuery, question_router
+from app.ingestion import retriever
 
 
 def test_retrieval_grader_relevant():

@@ -1,17 +1,17 @@
-from dotenv import load_dotenv
+from typing import Optional
+
+from langgraph.checkpoint.base import BaseCheckpointSaver
 from langgraph.graph import END, START, StateGraph
 
-from graph.chains.answer_grader import answer_grader
-from graph.chains.hallucination_grader import hallucination_grader
-from graph.chains.router import question_router
-from graph.consts import GENERATE, GRADE_DOCUMENTS, RETRIEVE, WEBSEARCH
-from graph.nodes.generate import generate
-from graph.nodes.grade_documents import grade_documents
-from graph.nodes.retrieve import retrieve
-from graph.nodes.web_search import web_search
-from graph.state import GraphState
-
-load_dotenv()
+from app.graph.chains.answer_grader import answer_grader
+from app.graph.chains.hallucination_grader import hallucination_grader
+from app.graph.chains.router import question_router
+from app.graph.consts import GENERATE, GRADE_DOCUMENTS, RETRIEVE, WEBSEARCH
+from app.graph.nodes.generate import generate
+from app.graph.nodes.grade_documents import grade_documents
+from app.graph.nodes.retrieve import retrieve
+from app.graph.nodes.web_search import web_search
+from app.graph.state import GraphState
 
 
 def route_question(state: GraphState) -> str:
@@ -57,7 +57,7 @@ def grade_generation_v_documents_and_question(state: GraphState) -> str:
     return "not supported"
 
 
-def build_graph():
+def build_graph(checkpointer: Optional[BaseCheckpointSaver] = None):
     workflow = StateGraph(GraphState)
 
     workflow.add_node(RETRIEVE, retrieve)
@@ -87,7 +87,4 @@ def build_graph():
         },
     )
 
-    return workflow.compile()
-
-
-app = build_graph()
+    return workflow.compile(checkpointer=checkpointer)

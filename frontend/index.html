@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Nexus AI — Navigate the Agentic Era</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/static/assets/nexus-logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/css/styles.css?v=2" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+
+  <main class="auth-wrapper">
+    <div class="glass-card auth-card">
+      <!-- Logo -->
+      <div class="auth-logo">
+        <img src="/static/assets/nexus-logo.svg" alt="Nexus AI" />
+        <h1>Nexus AI</h1>
+        <span class="tagline">Navigate the Agentic Era</span>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="signin">Sign In</button>
+        <button class="auth-tab" data-tab="signup">Sign Up</button>
+      </div>
+
+      <!-- Error -->
+      <div id="auth-error" class="auth-error"></div>
+
+      <!-- Sign In Form -->
+      <form id="form-signin" autocomplete="on">
+        <div class="form-group">
+          <label for="signin-email">Email</label>
+          <input
+            id="signin-email"
+            class="form-input"
+            type="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="signin-password">Password</label>
+          <input
+            id="signin-password"
+            class="form-input"
+            type="password"
+            placeholder="••••••••"
+            required
+            autocomplete="current-password"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-signin">
+          <span class="btn-label">Sign In</span>
+        </button>
+      </form>
+
+      <!-- Sign Up Form -->
+      <form id="form-signup" class="hidden" autocomplete="on">
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+          <input
+            id="signup-email"
+            class="form-input"
+            type="email"
+            placeholder="you@example.com"
+            required
+            autocomplete="email"
+          />
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input
+            id="signup-password"
+            class="form-input"
+            type="password"
+            placeholder="Min 6 characters"
+            required
+            minlength="6"
+            autocomplete="new-password"
+          />
+        </div>
+        <button type="submit" class="btn btn-primary" id="btn-signup">
+          <span class="btn-label">Create Account</span>
+        </button>
+      </form>
+    </div>
+  </main>
+
+  <script src="/static/js/auth.js"></script>
+</body>
+</html>

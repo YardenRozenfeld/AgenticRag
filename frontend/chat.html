@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Nexus AI — Chat</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="icon" href="/static/assets/nexus-logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="/static/css/styles.css?v=2" />
+</head>
+<body>
+  <div class="chat-layout">
+    <!-- Mobile backdrop -->
+    <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+
+    <!-- ─── Sidebar ─────────────────────────────────────────── -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <img src="/static/assets/nexus-logo.svg" alt="Nexus AI" />
+        <h2>Nexus AI</h2>
+      </div>
+
+      <div class="sidebar-actions">
+        <button class="btn-new-chat" id="btn-new-chat">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="8" y1="3" x2="8" y2="13"/><line x1="3" y1="8" x2="13" y2="8"/>
+          </svg>
+          New Chat
+        </button>
+      </div>
+
+      <div class="thread-list" id="thread-list"></div>
+
+      <div class="sidebar-footer">
+        <button class="btn-signout" id="btn-signout">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+            <polyline points="16 17 21 12 16 7"/>
+            <line x1="21" y1="12" x2="9" y2="12"/>
+          </svg>
+          Sign Out
+        </button>
+      </div>
+    </aside>
+
+    <!-- ─── Main Chat ───────────────────────────────────────── -->
+    <div class="chat-main">
+      <!-- Top bar -->
+      <div class="chat-topbar">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <button class="btn-icon sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+          </button>
+          <span class="chat-topbar-title" id="topbar-title">New Conversation</span>
+        </div>
+      </div>
+
+      <!-- Messages area -->
+      <div class="chat-messages" id="chat-messages">
+        <!-- Welcome state (visible when no messages) -->
+        <div class="chat-welcome" id="chat-welcome">
+          <div class="welcome-avatar">
+            <img src="/static/assets/nexus-logo.svg" alt="Nexus AI" />
+          </div>
+          <div class="welcome-text">
+            <h2>Welcome to Nexus AI</h2>
+            <p>Your intelligent assistant for the agentic era. Ask me about prompt engineering, LLM security, hallucination mitigation, and more.</p>
+          </div>
+
+          <div class="info-cards">
+            <div class="glass-card info-card">
+              <h3 class="can-ask">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+                You can ask
+              </h3>
+              <ul>
+                <li>Prompt engineering techniques</li>
+                <li>Adversarial attacks on LLMs</li>
+                <li>Hallucination causes &amp; fixes</li>
+                <li>General AI &amp; ML concepts</li>
+              </ul>
+            </div>
+            <div class="glass-card info-card">
+              <h3 class="limits">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                Limitations
+              </h3>
+              <ul>
+                <li>Best suited for LLM/AI topics</li>
+                <li>May lack very recent data</li>
+                <li>Not professional advice</li>
+                <li>Web fallback for off-topic Qs</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="chat-input-area">
+        <div class="chat-input-wrap">
+          <textarea
+            id="chat-input"
+            class="chat-input"
+            placeholder="Ask about the agentic era..."
+            rows="1"
+          ></textarea>
+          <button class="btn-send" id="btn-send" disabled aria-label="Send message">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/js/chat.js"></script>
+</body>
+</html>

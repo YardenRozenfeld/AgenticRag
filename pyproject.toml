@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "agentic-rag"
+version = "0.1.0"
+description = "Agentic RAG pipeline with LangGraph"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "python-dotenv",
+    "pydantic-settings",
+    "langchain",
+    "langchain-openai",
+    "langchain-community",
+    "langgraph",
+    "langgraph-checkpoint-postgres",
+    "chromadb",
+    "supabase",
+    "tavily-python",
+    "beautifulsoup4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "black",
+    "isort",
+]
+
+[project.scripts]
+agentic-rag = "app.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.isort]
+profile = "black"
+
+[tool.black]
+line-length = 100

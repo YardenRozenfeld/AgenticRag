@@ -1,6 +1,7 @@
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # Virtual environment
 .venv/
@@ -29,6 +30,7 @@ Thumbs.db
 
 # ChromaDB local data
 chroma_data/
+.chroma_db/
 
 # Jupyter
 .ipynb_checkpoints/

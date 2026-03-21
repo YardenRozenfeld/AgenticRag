@@ -1,12 +1,13 @@
-from dotenv import load_dotenv
 from langchain_community.vectorstores import Chroma
 from langchain_openai import OpenAIEmbeddings
 
-load_dotenv()
+from app.config import get_settings
+
+settings = get_settings()
 
 retriever = Chroma(
-    collection_name="rag-chroma",
-    persist_directory="./.chroma_db",
+    collection_name=settings.chroma_collection_name,
+    persist_directory=settings.chroma_persist_directory,
     embedding_function=OpenAIEmbeddings(),
 ).as_retriever()
 
@@ -28,8 +29,8 @@ if __name__ == "__main__":
 
     Chroma.from_documents(
         documents=doc_splits,
-        collection_name="rag-chroma",
+        collection_name=settings.chroma_collection_name,
         embedding=OpenAIEmbeddings(),
-        persist_directory="./.chroma_db",
+        persist_directory=settings.chroma_persist_directory,
     )
     print(f"Ingested {len(doc_splits)} document chunks into ChromaDB.")
