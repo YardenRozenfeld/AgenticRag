@@ -41,6 +41,7 @@ User Question
 - **LangChain** + **LangChain-OpenAI** — LCEL chain composition, OpenAI models
 - **ChromaDB** — local persistent vector store
 - **Tavily** — real-time web search fallback
+- **Supabase** — authentication (email/password) and Postgres-backed conversation memory
 - **LangSmith** — tracing and observability (optional)
 
 ## Prerequisites
@@ -71,9 +72,24 @@ LANGCHAIN_API_KEY=ls__...        # Optional — required only if tracing is enab
 LANGCHAIN_TRACING_V2=true        # Optional
 LANGCHAIN_PROJECT=AgenticRag     # Optional
 PYTHON_PATH=.
+
+# Supabase (required for server.py auth & per-user memory)
+SUPABASE_URL=https://<project-ref>.supabase.co
+SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
+SUPABASE_DB_URL=postgresql://postgres.<project-ref>:<password>@aws-0-<region>.pooler.supabase.com:6543/postgres
 ```
 
+| Variable | Purpose |
+|---|---|
+| `SUPABASE_URL` | Supabase project URL — used by the Python client for auth operations |
+| `SUPABASE_ANON_KEY` | Supabase anonymous/public key — used by the Python client for auth operations |
+| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service-role key — used for admin-level operations (thread listing) |
+| `SUPABASE_DB_URL` | Direct Postgres connection string — used by the LangGraph `PostgresSaver` checkpointer for conversation memory |
+
 > **Note**: If `LANGCHAIN_TRACING_V2=true`, a valid `LANGCHAIN_API_KEY` must be set or the app will error on startup.
+>
+> **Supabase setup**: Create a project at [supabase.com](https://supabase.com), enable email/password auth, and copy the connection details from the project dashboard into the variables above.
 
 ## Usage
 
