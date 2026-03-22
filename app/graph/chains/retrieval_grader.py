@@ -1,8 +1,10 @@
 from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel, Field
 from langchain_openai import ChatOpenAI
+from pydantic import BaseModel, Field
 
-llm = ChatOpenAI(temperature=0)
+from app.config import get_settings
+
+llm = ChatOpenAI(model=get_settings().grader_model, temperature=0)
 
 
 class GradeDocuments(BaseModel):

@@ -1,6 +1,9 @@
 from functools import lru_cache
 
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+load_dotenv()
 
 
 class Settings(BaseSettings):
@@ -22,6 +25,10 @@ class Settings(BaseSettings):
 
     chroma_persist_directory: str = "./.chroma_db"
     chroma_collection_name: str = "rag-chroma"
+
+    grader_model: str = "gpt-4o-mini"
+
+    redis_url: str = ""
 
 
 @lru_cache

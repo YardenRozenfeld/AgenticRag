@@ -2,6 +2,8 @@ from langchain_core.prompts import ChatPromptTemplate
 from langchain_openai import ChatOpenAI
 from pydantic import BaseModel, Field
 
+from app.config import get_settings
+
 
 class GradeHallucinations(BaseModel):
     """Binary score for hallucination check on generation."""
@@ -11,7 +13,7 @@ class GradeHallucinations(BaseModel):
     )
 
 
-llm = ChatOpenAI(temperature=0)
+llm = ChatOpenAI(model=get_settings().grader_model, temperature=0)
 structured_llm_grader = llm.with_structured_output(GradeHallucinations, method="function_calling")
 
 system = """You are a grader assessing whether an LLM generation is grounded in / supported by a set of retrieved facts. \n
