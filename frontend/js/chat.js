@@ -87,13 +87,27 @@
     });
   }
 
-  function selectThread(threadId, title) {
+  async function selectThread(threadId, title) {
     currentThreadId = threadId;
     topbarTitle.textContent = title || "Conversation";
     clearMessages();
     welcomeEl.classList.add("hidden");
     loadThreads();
     closeSidebar();
+
+    // Load past messages for this thread
+    try {
+      const res = await fetch("/threads/" + threadId + "/messages", {
+        headers: authHeaders(),
+      });
+      if (handleAuthError(res)) return;
+      if (res.ok) {
+        const data = await res.json();
+        (data.messages || []).forEach((m) => addMessage(m.role, m.content));
+      }
+    } catch (err) {
+      console.error("Failed to load messages:", err);
+    }
   }
 
   function startNewChat() {
@@ -202,15 +216,54 @@
         return;
       }
 
-      const data = await res.json();
+      const contentType = res.headers.get("content-type") || "";
 
-      if (!currentThreadId && data.thread_id) {
-        currentThreadId = data.thread_id;
-        topbarTitle.textContent = text.substring(0, 60);
-        loadThreads();
+      if (contentType.includes("text/event-stream")) {
+        // Streaming response — read SSE tokens
+        const botMsg = addMessage("bot", "");
+        const bubble = botMsg.querySelector(".message-bubble");
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split("\n");
+          buffer = lines.pop(); // keep incomplete line in buffer
+
+          for (const line of lines) {
+            if (!line.startsWith("data: ")) continue;
+            const payload = JSON.parse(line.slice(6));
+
+            if (payload.token) {
+              bubble.textContent += payload.token;
+              messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+
+            if (payload.done) {
+              if (!currentThreadId && payload.thread_id) {
+                currentThreadId = payload.thread_id;
+                topbarTitle.textContent = text.substring(0, 60);
+                loadThreads();
+              }
+            }
+          }
+        }
+      } else {
+        // Non-streaming (e.g. cached) JSON response
+        const data = await res.json();
+
+        if (!currentThreadId && data.thread_id) {
+          currentThreadId = data.thread_id;
+          topbarTitle.textContent = text.substring(0, 60);
+          loadThreads();
+        }
+
+        addMessage("bot", data.answer);
       }
-
-      addMessage("bot", data.answer);
     } catch (err) {
       removeTypingIndicator();
       addMessage("bot", "Network error. Please check your connection.");
