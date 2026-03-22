@@ -21,6 +21,9 @@ dependencies = [
     "supabase",
     "tavily-python",
     "beautifulsoup4",
+    "redis",
+    "numpy",
+    "psycopg[binary]",
 ]
 
 [project.optional-dependencies]
