@@ -29,6 +29,9 @@ An agentic RAG chatbot that **routes, retrieves, grades, generates, and self-cor
 | :repeat: | **Reflective RAG** | Generated answers are checked for hallucinations *and* usefulness; the graph loops back to retry or re-search |
 | :lock: | **Auth & Memory** | Supabase email/password auth with per-user conversation threads persisted via a Postgres checkpointer |
 | :art: | **Web UI** | Dark-themed responsive frontend with sign-in/sign-up and a chat interface with thread sidebar |
+| :zap: | **Response Streaming** | Real-time token streaming via Server-Sent Events — answers appear word-by-word |
+| :brain: | **Semantic Caching** | Redis-backed embedding cache with cosine similarity — repeated questions return instantly |
+| :moneybag: | **Model Tiering** | Grader chains use `gpt-4o-mini` for cost efficiency; generation uses the full model |
 | :test_tube: | **Tested Chains** | Integration tests for every LLM chain — retrieval grader, generation, hallucination grader, answer grader, router |
 
 <br>
@@ -81,7 +84,8 @@ Each box is a **LangGraph node**. Conditional edges implement the self-correctin
 | **Vector Store** | [ChromaDB](https://www.trychroma.com/) | Local persistent embedding store — zero infrastructure |
 | **Web Search** | [Tavily](https://tavily.com) | LLM-optimized web search fallback |
 | **Auth & DB** | [Supabase](https://supabase.com) | Email/password auth + Postgres conversation memory |
-| **API** | [FastAPI](https://fastapi.tiangolo.com) | REST endpoints with dependency injection |
+| **Cache** | [Redis](https://redis.io) via [Upstash](https://upstash.com) | Semantic caching with embedding similarity *(optional)* |
+| **API** | [FastAPI](https://fastapi.tiangolo.com) | REST endpoints with SSE streaming |
 | **Observability** | [LangSmith](https://smith.langchain.com/) | Tracing and debugging *(optional)* |
 
 <br>
@@ -93,6 +97,7 @@ Each box is a **LangGraph node**. Conditional edges implement the self-correctin
 - Python 3.12+
 - A [Supabase](https://supabase.com) project (free tier works)
 - API keys: [OpenAI](https://platform.openai.com/api-keys), [Tavily](https://tavily.com)
+- *(Optional)* A Redis instance for semantic caching — [Upstash](https://upstash.com) free tier or local Docker
 
 ### 1. Clone & install
 
@@ -125,6 +130,8 @@ cp .env.example .env
 | `SUPABASE_ANON_KEY` | Yes | Public key for client-side auth |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Admin key for thread management |
 | `SUPABASE_DB_URL` | Yes | Direct Postgres connection for LangGraph checkpointer |
+| `REDIS_URL` | No | Redis connection URL for semantic caching (e.g. `rediss://...` for Upstash) |
+| `GRADER_MODEL` | No | Model for grader chains (default: `gpt-4o-mini`) |
 | `LANGCHAIN_API_KEY` | No | LangSmith tracing (if `LANGCHAIN_TRACING_V2=true`) |
 | `LANGCHAIN_TRACING_V2` | No | Enable LangSmith tracing (`true` / `false`) |
 | `LANGCHAIN_PROJECT` | No | LangSmith project name |
@@ -182,8 +189,9 @@ Authorization: Bearer <access_token>
 | `/app` | `GET` | — | Chat page *(JS redirects if no token)* |
 | `/auth/signup` | `POST` | — | Create account `{ "email", "password" }` |
 | `/auth/login` | `POST` | — | Login → access + refresh tokens |
-| `/chat` | `POST` | :lock: | `{ "question", "thread_id?" }` — omit `thread_id` for new conversation |
+| `/chat` | `POST` | :lock: | `{ "question", "thread_id?" }` — streams response via SSE; cache hits return JSON |
 | `/threads` | `GET` | :lock: | List the authenticated user's conversation threads |
+| `/threads/{id}/messages` | `GET` | :lock: | Load past messages for a thread |
 
 <br>
 
@@ -195,9 +203,11 @@ AgenticRag/
 ├── requirements.txt                     # Pinned dependencies
 ├── .env.example                         # Environment variable template
 │
+├── CLAUDE.md                            # Claude Code project guidelines
 ├── app/                                 # Main Python package
 │   ├── config.py                        # Pydantic-settings centralized config
-│   ├── server.py                        # FastAPI app assembly + lifespan
+│   ├── server.py                        # FastAPI app assembly + async lifespan
+│   ├── cache.py                         # Redis-backed semantic cache
 │   ├── cli.py                           # CLI entry point (no auth)
 │   ├── ingestion.py                     # Document loading + ChromaDB indexing
 │   │
@@ -341,3 +351,21 @@ ChromaDB provides **zero-infrastructure local development**. Embeddings persist 
 ### Why Tavily for web search?
 
 Tavily is purpose-built for LLM applications — it returns clean, parsed content (not raw HTML) optimized for context windows. It plugs directly into LangChain as a tool, making it a drop-in node in the graph. The web search fallback ensures the chatbot answers questions outside its vector store's domain instead of returning *"I don't know."*
+
+<br>
+
+### Why model tiering?
+
+Grader chains (router, retrieval grader, hallucination grader, answer grader) perform binary classification — a task that doesn't require the most capable model. Using `gpt-4o-mini` for graders cuts per-query cost significantly while the generation chain retains the full model for answer quality. The `GRADER_MODEL` setting makes this configurable without code changes.
+
+<br>
+
+### Why semantic caching with Redis?
+
+Identical or near-identical questions hitting the full RAG pipeline waste tokens and add latency. The semantic cache embeds each question with OpenAI, stores the embedding + response in Redis, and on subsequent queries computes cosine similarity against all cached entries. A 0.95 threshold ensures only truly equivalent questions return cached answers. Redis was chosen for its speed and broad hosting options (Upstash free tier, Docker, or any managed Redis). The cache is fully optional — when `REDIS_URL` is empty, the system operates without it.
+
+<br>
+
+### Why SSE streaming?
+
+Without streaming, users stare at a loading spinner for 5–15 seconds while the full RAG pipeline runs. Server-Sent Events let the frontend render tokens as they arrive from the generation model, giving immediate visual feedback. The implementation uses LangGraph's `astream_events` to capture only generation tokens (not grader outputs), yielding `data: {"token": "..."}` per chunk and a final `data: {"done": true}` event with the complete answer and thread ID.
